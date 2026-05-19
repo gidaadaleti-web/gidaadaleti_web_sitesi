@@ -1,0 +1,2 @@
+# gidaadaleti_web_sitesi
+gidaadaletikolektifi
