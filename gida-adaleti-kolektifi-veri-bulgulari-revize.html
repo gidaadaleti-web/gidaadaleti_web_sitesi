@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gıda Adaleti Kolektifi</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:   #F2EBD9;
+  --ink:     #1C1208;
+  --red:     #C13B2A;
+  --yellow:  #E8C840;
+  --green:   #2E5E35;
+  --green2:  #5A8A4A;
+  --rust:    #A64E1B;
+  --mist:    #D6CBB5;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Courier Prime', monospace;
+}
+
+body::after {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+  opacity:.9;
+  mix-blend-mode: multiply;
+}
+
+/* NAV */
+nav {
+  position: sticky; top:0; z-index:100;
+  background: var(--ink);
+  display: flex; align-items:center; justify-content:space-between;
+  padding: .9rem 2.5rem;
+  border-bottom: 4px solid var(--yellow);
+}
+.nav-mark {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.4rem; letter-spacing:.08em;
+  color: var(--yellow);
+  line-height:1;
+}
+.nav-mark span { color: var(--red); }
+.nav-links { display:flex; gap:2rem; list-style:none; }
+.nav-links a {
+  font-size:.7rem; letter-spacing:.12em; text-transform:uppercase;
+  color: var(--mist); text-decoration:none;
+  border-bottom: 1px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.nav-links a:hover { color:var(--yellow); border-color:var(--yellow); }
+
+/* HERO */
+.hero {
+  min-height: 92vh;
+  display: grid; grid-template-rows: 1fr auto;
+  background: var(--ink);
+  padding: 4rem 2.5rem 0;
+  position: relative; overflow:hidden;
+}
+.hero::before {
+  content:'';
+  position:absolute; inset:0; pointer-events:none;
+  background-image: radial-gradient(circle, rgba(232,200,64,.13) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.hero-inner {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: end; gap: 2rem;
+  position: relative; z-index:2;
+}
+.hero-stamp {
+  display:inline-block;
+  background: var(--red); color: var(--paper);
+  font-size:.6rem; letter-spacing:.2em; text-transform:uppercase;
+  padding:.35rem .9rem; margin-bottom:1.8rem;
+  transform: rotate(-1.5deg);
+}
+.hero-h1 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: clamp(5rem,11vw,10rem);
+  line-height:.92; color: var(--paper); letter-spacing:.02em;
+}
+.hero-h1 .line-red  { color: var(--red); display:block; }
+.hero-h1 .line-yel  { color: var(--yellow); display:block; }
+.hero-sub {
+  margin-top: 2rem;
+  font-size:.88rem; line-height:1.85; color: var(--mist); max-width:520px;
+  border-left: 3px solid var(--green2); padding-left: 1.2rem;
+}
+.hero-cta-row { display:flex; gap:1rem; margin-top:2.5rem; flex-wrap:wrap; }
+.btn {
+  display:inline-block;
+  font-family:'Courier Prime',monospace;
+  font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding:.85rem 1.8rem; text-decoration:none;
+  border:2px solid; transition: all .15s;
+}
+.btn-red   { background:var(--red); color:var(--paper); border-color:var(--red); }
+.btn-red:hover { background:transparent; color:var(--red); }
+.btn-ghost { background:transparent; color:var(--mist); border-color:rgba(214,203,181,.3); }
+.btn-ghost:hover { border-color:var(--mist); color:var(--paper); }
+.hero-right {
+  display:flex; flex-direction:column; align-items:flex-end; gap:1rem;
+  padding-bottom:.5rem;
+}
+.hero-count { text-align:right; }
+.hero-count-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:4.5rem; color:var(--yellow); line-height:1; display:block;
+}
+.hero-count-label {
+  font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--mist);
+}
+.hero-bar {
+  background: var(--red);
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 1rem 2.5rem; margin: 0 -2.5rem;
+  position:relative; z-index:2;
+}
+.hero-bar-text {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem; letter-spacing:.1em; color: var(--paper);
+}
+.hero-bar-issue {
+  font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(242,235,217,.55);
+}
+
+/* TICKER */
+.ticker {
+  background: var(--yellow); padding:.55rem 0;
+  overflow:hidden; white-space:nowrap;
+  border-bottom: 3px solid var(--rust);
+}
+.ticker-track {
+  display:inline-flex; gap:3rem;
+  animation: roll 22s linear infinite;
+}
+.ticker-item {
+  font-size:.65rem; letter-spacing:.15em; text-transform:uppercase;
+  color: var(--ink); font-weight:700;
+  display:flex; align-items:center; gap:.8rem;
+}
+.ticker-sep { color: var(--rust); font-size:1rem; }
+@keyframes roll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* SECTION LABEL */
+.sec-label {
+  display:flex; align-items:center; gap:1rem;
+  font-size:.6rem; letter-spacing:.22em; text-transform:uppercase;
+  color: var(--rust); margin-bottom:2.5rem;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--rust); opacity:.3; }
+
+/* DUYGULAR */
+.duygular {
+  padding: 6rem 2.5rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+  max-width:1300px; margin:0 auto;
+}
+.duygular-h2 {
+  font-family:'DM Serif Display',serif;
+  font-size: clamp(2.2rem,4vw,3.8rem); line-height:1.1; margin-bottom:1.8rem;
+}
+.duygular-h2 em { font-style:italic; color:var(--red); }
+.duygular-body { font-size:.9rem; line-height:1.95; color:#3A2A14; margin-bottom:1.4rem; }
+.pull-quote {
+  background: var(--green); color: var(--paper);
+  padding: 1.6rem 2rem; margin: 2.5rem 0; position:relative;
+}
+.pull-quote::before {
+  content:'"';
+  font-family:'DM Serif Display',serif; font-size:6rem; line-height:.7;
+  color:rgba(242,235,217,.15);
+  position:absolute; top:.5rem; left:.8rem; pointer-events:none;
+}
+.pull-quote p {
+  font-family:'DM Serif Display',serif; font-style:italic;
+  font-size:1.2rem; line-height:1.55; position:relative; z-index:1;
+}
+.duygular-right { display:flex; flex-direction:column; gap:1.5rem; padding-top:1rem; }
+.feeling-card {
+  background: white; border:1px solid var(--mist);
+  padding:1.5rem 1.8rem; position:relative;
+  box-shadow: 3px 3px 0 var(--mist);
+  transition: transform .15s, box-shadow .15s;
+}
+.feeling-card:hover { transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--mist); }
+.feeling-card::before {
+  content: attr(data-num);
+  position:absolute; top:1rem; right:1.2rem;
+  font-family:'Bebas Neue',sans-serif; font-size:3rem; color:rgba(28,18,8,.06); line-height:1;
+}
+.feeling-title {
+  font-size:.65rem; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--rust); margin-bottom:.7rem; font-weight:700;
+}
+.feeling-text { font-size:.85rem; line-height:1.8; color:#3A2A14; }
+.feeling-tag {
+  display:inline-block; margin-top:1rem;
+  font-size:.58rem; letter-spacing:.15em; text-transform:uppercase;
+  border:1px solid; padding:.25rem .7rem;
+}
+.feeling-tag.red   { color:var(--red);   border-color:var(--red);  }
+.feeling-tag.green { color:var(--green); border-color:var(--green); }
+.feeling-tag.rust  { color:var(--rust);  border-color:var(--rust);  }
+
+/* SORUNLAR */
+.sorunlar { background: var(--green); padding: 6rem 2.5rem; }
+.sorunlar-inner { max-width:1300px; margin:0 auto; }
+.sorunlar .sec-label { color:var(--yellow); }
+.sorunlar .sec-label::after { background:var(--yellow); }
+.sorunlar-h2 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: clamp(3rem,6vw,6rem); line-height:.9;
+  color:var(--paper); letter-spacing:.03em; margin-bottom:3.5rem;
+}
+.sorunlar-h2 span { color:var(--yellow); display:block; }
+.sorunlar-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:2px; background:rgba(242,235,217,.12);
+}
+.sorun-item {
+  background:var(--green); padding:2.5rem 2rem;
+  border-bottom:3px solid transparent;
+  transition:background .2s, border-color .2s;
+}
+.sorun-item:hover { background:#274F2E; border-color:var(--yellow); }
+.sorun-glyph { font-size:1.8rem; margin-bottom:1.2rem; display:block; filter: grayscale(1) brightness(3); }
+.sorun-title { font-family:'DM Serif Display',serif; font-size:1.25rem; color:var(--paper); margin-bottom:.8rem; line-height:1.2; }
+.sorun-body { font-size:.82rem; line-height:1.85; color:rgba(242,235,217,.72); }
+
+/* KYK STRIP */
+.kyk-strip { display:grid; grid-template-columns:1fr 1fr; min-height:55vh; }
+.kyk-text {
+  background:var(--red); padding: 5rem 3.5rem;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.kyk-eyebrow { font-size:.6rem; letter-spacing:.22em; text-transform:uppercase; color:rgba(242,235,217,.55); margin-bottom:1.2rem; }
+.kyk-h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.5rem,4vw,4.5rem); line-height:.95; color:var(--paper); letter-spacing:.03em; margin-bottom:1.5rem; }
+.kyk-body { font-size:.88rem; line-height:1.9; color:rgba(242,235,217,.8); margin-bottom:2rem; }
+.btn-paper {
+  display:inline-block; background:var(--paper); color:var(--red);
+  font-family:'Courier Prime',monospace; font-size:.68rem; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:.85rem 1.8rem;
+  text-decoration:none; border:2px solid var(--paper); transition: all .15s; width:fit-content;
+}
+.btn-paper:hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.kyk-visual {
+  background: var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:2rem; padding:3rem;
+  position:relative; overflow:hidden;
+}
+.kyk-visual::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(232,200,64,.1) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.kyk-stat-row { display:flex; flex-direction:column; align-items:center; position:relative; z-index:2; }
+.kyk-big { font-family:'Bebas Neue',sans-serif; font-size:7rem; color:var(--yellow); line-height:1; }
+.kyk-small { font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--mist); margin-top:.3rem; }
+
+/* FİKİRLER */
+.fikirler { padding: 6rem 2.5rem; max-width:1300px; margin:0 auto; }
+.fikirler-h2 { font-family:'DM Serif Display',serif; font-size:clamp(2rem,3.5vw,3.5rem); line-height:1.1; margin-bottom:3.5rem; }
+.fikirler-h2 em { font-style:italic; color:var(--green); }
+.fikir-list { display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; }
+.fikir-card {
+  border: 2px solid var(--ink); padding: 2.2rem 2rem;
+  display:grid; grid-template-columns:auto 1fr; gap:1.5rem; align-items:start;
+  position:relative; overflow:hidden; transition: background .2s;
+}
+.fikir-card:hover { background:rgba(28,18,8,.03); }
+.fikir-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0;
+  height:3px; background:var(--yellow);
+  transform:scaleX(0); transform-origin:left; transition:transform .3s;
+}
+.fikir-card:hover::after { transform:scaleX(1); }
+.fikir-num { font-family:'Bebas Neue',sans-serif; font-size:3.5rem; color:rgba(28,18,8,.1); line-height:1; }
+.fikir-title { font-family:'DM Serif Display',serif; font-size:1.15rem; margin-bottom:.6rem; line-height:1.25; }
+.fikir-text { font-size:.82rem; line-height:1.85; color:#3A2A14; }
+.fikir-badge {
+  display:inline-block; margin-top:1rem;
+  font-size:.58rem; letter-spacing:.15em; text-transform:uppercase;
+  background:var(--yellow); color:var(--ink); padding:.3rem .8rem; font-weight:700;
+}
+
+/* KATILIM */
+.katilim { background: var(--ink); padding: 7rem 2.5rem; text-align:center; position:relative; overflow:hidden; }
+.katilim::before {
+  content:'DAYANIŞMA';
+  font-family:'Bebas Neue',sans-serif; font-size:16vw; color:rgba(232,200,64,.04);
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  white-space:nowrap; pointer-events:none; letter-spacing:.05em;
+}
+.katilim-inner { position:relative; z-index:2; max-width:640px; margin:0 auto; }
+.katilim-kicker {
+  font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--yellow);
+  margin-bottom:1.5rem; display:flex; align-items:center; justify-content:center; gap:.8rem;
+}
+.katilim-kicker::before, .katilim-kicker::after { content:''; display:block; width:30px; height:1px; background:var(--yellow); }
+.katilim-h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,6vw,5.5rem); line-height:.92; letter-spacing:.03em; color:var(--paper); margin-bottom:1.5rem; }
+.katilim-h2 span { color:var(--red); display:block; }
+.katilim-desc { font-size:.88rem; line-height:1.9; color:var(--mist); margin-bottom:2.5rem; }
+.katilim-form { display:flex; max-width:440px; margin:0 auto 2rem; }
+.katilim-input {
+  flex:1; padding:.9rem 1.2rem;
+  background:rgba(242,235,217,.08); border:2px solid rgba(242,235,217,.15); border-right:none;
+  color:var(--paper); font-family:'Courier Prime',monospace; font-size:.85rem;
+  outline:none; transition:border-color .2s;
+}
+.katilim-input::placeholder { color:rgba(242,235,217,.3); }
+.katilim-input:focus { border-color:var(--yellow); }
+.katilim-btn {
+  background:var(--red); color:var(--paper); padding:.9rem 1.4rem;
+  border:2px solid var(--red); font-family:'Courier Prime',monospace;
+  font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  cursor:pointer; transition:all .15s;
+}
+.katilim-btn:hover { background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
+.katilim-hint { font-size:.62rem; letter-spacing:.1em; color:rgba(242,235,217,.35); text-transform:uppercase; }
+
+/* FOOTER */
+footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.5rem 2.5rem 2rem; }
+.footer-top { display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:3rem; margin-bottom:3rem; }
+.footer-brand-name { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:.06em; line-height:1; margin-bottom:1rem; }
+.footer-brand-name span { color:var(--red); }
+.footer-tagline { font-size:.8rem; line-height:1.85; color:#5A4030; max-width:260px; }
+.footer-col-head { font-size:.58rem; letter-spacing:.22em; text-transform:uppercase; color:var(--rust); margin-bottom:1.2rem; font-weight:700; }
+.footer-links { list-style:none; display:flex; flex-direction:column; gap:.7rem; }
+.footer-links a { font-size:.8rem; color:#5A4030; text-decoration:none; transition:color .15s; }
+.footer-links a:hover { color:var(--red); }
+.footer-bottom { border-top:1px solid var(--mist); padding-top:1.5rem; display:flex; justify-content:space-between; align-items:center; }
+.footer-copy { font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--mist); }
+.footer-socials { display:flex; gap:1.5rem; }
+.footer-socials a { font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--mist); text-decoration:none; transition:color .15s; }
+.footer-socials a:hover { color:var(--ink); }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.hero-stamp   { animation: fadeUp .5s ease .1s both; }
+.hero-h1      { animation: fadeUp .6s ease .2s both; }
+.hero-sub     { animation: fadeUp .6s ease .38s both; }
+.hero-cta-row { animation: fadeUp .6s ease .5s both; }
+.hero-right   { animation: fadeUp .7s ease .45s both; }
+
+/* RESPONSIVE */
+@media(max-width:880px){
+  .hero-inner { grid-template-columns:1fr; }
+  .hero-right { flex-direction:row; justify-content:flex-start; }
+  .duygular   { grid-template-columns:1fr; padding:4rem 1.5rem; }
+  .sorunlar-grid { grid-template-columns:1fr; }
+  .kyk-strip  { grid-template-columns:1fr; }
+  .fikir-list { grid-template-columns:1fr; }
+  .footer-top { grid-template-columns:1fr 1fr; gap:2rem; }
+  .sorunlar, .fikirler, .katilim { padding:4rem 1.5rem; }
+  nav { padding:.8rem 1.5rem; }
+  .nav-links { gap:1rem; }
+}
+
+/* VERİ BULGULARI */
+.veri-bulgular {
+  background: var(--paper);
+  padding: 6rem 2.5rem;
+  border-top: 4px solid var(--ink);
+  position: relative;
+}
+.veri-bulgular-inner { max-width:1300px; margin:0 auto; }
+.veri-header {
+  display:grid; grid-template-columns: 1fr .85fr; gap:3.5rem; align-items:end;
+  margin-bottom:3rem;
+}
+.veri-h2 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: clamp(3.2rem,7vw,7rem);
+  line-height:.9; letter-spacing:.025em;
+  color:var(--ink);
+}
+.veri-h2 span { display:block; color:var(--red); }
+.veri-lead {
+  font-size:.92rem; line-height:1.9; color:#3A2A14;
+  border-left:4px solid var(--red); padding-left:1.2rem;
+}
+.veri-lead strong { color:var(--red); }
+.veri-method {
+  margin-top:1rem; font-size:.68rem; line-height:1.65;
+  color:#6D5943;
+}
+.stat-grid {
+  display:grid; grid-template-columns: repeat(4,1fr); gap:1rem;
+  margin:2.5rem 0 3rem;
+}
+.stat-card {
+  background:var(--ink); color:var(--paper);
+  padding:1.5rem 1.3rem; min-height:180px;
+  border-bottom:6px solid var(--yellow);
+  position:relative; overflow:hidden;
+}
+.stat-card.red { border-color:var(--red); }
+.stat-card.green { border-color:var(--green2); }
+.stat-card::after {
+  content:''; position:absolute; inset:auto -30px -40px auto;
+  width:110px; height:110px; border-radius:50%;
+  background:rgba(232,200,64,.12);
+}
+.stat-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:4.8rem; line-height:.9; color:var(--yellow);
+  letter-spacing:.01em;
+}
+.stat-card.red .stat-num { color:var(--red); }
+.stat-card.green .stat-num { color:var(--green2); }
+.stat-title {
+  font-family:'DM Serif Display',serif;
+  font-size:1.1rem; line-height:1.22; margin:.8rem 0 .65rem;
+}
+.stat-text { font-size:.74rem; line-height:1.6; color:rgba(242,235,217,.72); }
+.veri-panel {
+  display:grid; grid-template-columns:1.05fr .95fr; gap:1.5rem;
+  margin-bottom:1.5rem;
+}
+.veri-box {
+  background:white; border:2px solid var(--ink); padding:2rem;
+  box-shadow: 5px 5px 0 var(--mist);
+}
+.veri-box.dark {
+  background:var(--green); color:var(--paper); border-color:var(--green);
+  box-shadow:5px 5px 0 rgba(28,18,8,.18);
+}
+.veri-box-title {
+  font-family:'DM Serif Display',serif; font-size:1.55rem; line-height:1.15;
+  margin-bottom:1rem;
+}
+.veri-box.dark .veri-box-title { color:var(--paper); }
+.veri-box-body { font-size:.84rem; line-height:1.8; color:#3A2A14; margin-bottom:1.4rem; }
+.veri-box.dark .veri-box-body { color:rgba(242,235,217,.78); }
+.veri-bar-row {
+  display:grid; grid-template-columns: 190px 1fr 58px; gap:.8rem; align-items:center;
+  padding:.78rem 0; border-top:1px solid rgba(28,18,8,.13);
+}
+.veri-box.dark .veri-bar-row { border-color:rgba(242,235,217,.16); }
+.veri-bar-label { font-size:.72rem; line-height:1.35; font-weight:700; }
+.veri-bar-track {
+  height:16px; background:rgba(28,18,8,.12); position:relative; overflow:hidden;
+}
+.veri-box.dark .veri-bar-track { background:rgba(242,235,217,.16); }
+.veri-bar-track span { position:absolute; inset:0 auto 0 0; background:var(--red); }
+.veri-box.dark .veri-bar-track span { background:var(--yellow); }
+.veri-bar-val { font-family:'Bebas Neue',sans-serif; font-size:1.25rem; color:var(--red); }
+.veri-box.dark .veri-bar-val { color:var(--yellow); }
+.veri-bar-note {
+  grid-column: 2 / 4;
+  font-size:.62rem; line-height:1.45; color:#6D5943; margin-top:-.2rem;
+}
+.veri-box.dark .veri-bar-note { color:rgba(242,235,217,.6); }
+.compare-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;
+  margin-top:1.5rem;
+}
+.compare-card { border:2px solid var(--ink); background:var(--paper); padding:1.8rem; position:relative; }
+.compare-card.wide { grid-column:1 / -1; background:var(--ink); color:var(--paper); }
+.compare-kicker {
+  font-size:.58rem; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--rust); margin-bottom:.7rem; font-weight:700;
+}
+.compare-card.wide .compare-kicker { color:var(--yellow); }
+.compare-card h3 { font-family:'DM Serif Display',serif; font-size:1.45rem; line-height:1.18; margin-bottom:.8rem; }
+.compare-card p { font-size:.8rem; line-height:1.75; color:#3A2A14; margin-bottom:1.1rem; }
+.compare-card.wide p { color:rgba(242,235,217,.72); }
+.compare-row { padding:1rem 0; border-top:1px solid rgba(28,18,8,.16); }
+.compare-card.wide .compare-row { border-color:rgba(242,235,217,.16); }
+.compare-title { font-size:.76rem; font-weight:700; margin-bottom:.65rem; }
+.compare-bars { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.compare-meta { display:flex; justify-content:space-between; gap:.6rem; font-size:.68rem; margin-bottom:.35rem; }
+.compare-meta strong { font-family:'Bebas Neue',sans-serif; font-size:1.15rem; color:var(--red); }
+.compare-card.wide .compare-meta strong { color:var(--yellow); }
+.mini-track { height:14px; background:rgba(28,18,8,.12); position:relative; overflow:hidden; }
+.compare-card.wide .mini-track { background:rgba(242,235,217,.16); }
+.mini-track span { position:absolute; inset:0 auto 0 0; background:var(--rust); }
+.mini-track.accent span { background:var(--red); }
+.compare-card.wide .mini-track span { background:var(--green2); }
+.compare-card.wide .mini-track.accent span { background:var(--yellow); }
+.callout-strip {
+  margin-top:1.8rem; padding:1.3rem 1.5rem;
+  background:var(--yellow); color:var(--ink);
+  display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:start;
+  border:2px solid var(--ink);
+}
+.callout-strip strong { font-family:'Bebas Neue',sans-serif; font-size:2.1rem; line-height:.95; }
+.callout-strip p { font-size:.82rem; line-height:1.65; }
+.index-note {
+  margin-top:1.5rem; padding:1.4rem 1.6rem;
+  border-left:4px solid var(--green);
+  background:rgba(46,94,53,.08);
+  font-size:.78rem; line-height:1.75; color:#3A2A14;
+}
+.index-note strong { color:var(--green); }
+@media(max-width:980px){
+  .veri-header, .veri-panel, .compare-grid { grid-template-columns:1fr; }
+  .stat-grid { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:620px){
+  .veri-bulgular { padding:4rem 1.5rem; }
+  .stat-grid { grid-template-columns:1fr; }
+  .veri-bar-row { grid-template-columns:1fr; gap:.35rem; }
+  .veri-bar-note { grid-column:auto; }
+  .compare-bars { grid-template-columns:1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-mark">Gıda Adaleti <span>Kolektifi</span></div>
+  <ul class="nav-links">
+    <li><a href="#bulgular">Bulgular</a></li>
+    <li><a href="#duygular">Nereden Geliyoruz</a></li>
+    <li><a href="#sorunlar">Sorunlar</a></li>
+    <li><a href="#fikirler">Ne Yapalım</a></li>
+    <li><a href="#katilim">Katıl</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-stamp">Kampüs · İstanbul · 2025</div>
+      <h1 class="hero-h1">
+        GIDA
+        <span class="line-red">ADALETİ</span>
+        <span class="line-yel">KOLEKTİFİ</span>
+      </h1>
+      <p class="hero-sub">
+        İstanbul’da öğrenciler gıdayı kısarak, öğünleri azaltarak ve fiyat hesabıyla yaşayarak ayakta kalıyor. 
+        Bu bireysel başarısızlık değil; kamusal bir mesele. Veriyi görünür kılıyor, dayanışmayı büyütüyoruz.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#katilim" class="btn btn-red">Bize Katıl</a>
+        <a href="#duygular" class="btn btn-ghost">Nasıl Başladık</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-count">
+        <span class="hero-count-num">İlk</span>
+        <span class="hero-count-label">Toplantıdan Büyüyoruz</span>
+      </div>
+      <div class="hero-count">
+        <span class="hero-count-num">∞</span>
+        <span class="hero-count-label">Gönüllü Emeği</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-bar">
+    <span class="hero-bar-text">Öğrenci · Kolektif · Hiyerarşisiz · Kâr Amacı Gütmez</span>
+    <span class="hero-bar-issue">Sayı 001 — Nisan 2025</span>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">Anket bulguları yayında <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Kolektif ismine birlikte karar veriyoruz <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Piknik organizasyonu geliyor <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Sosyal medya hesapları açılıyor <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">KYK yemekhaneleri gündemde <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Restoran haritası projesi başlıyor <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Kolektif ismine birlikte karar veriyoruz <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Piknik organizasyonu geliyor <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Sosyal medya hesapları açılıyor <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">KYK yemekhaneleri gündemde <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">Restoran haritası projesi başlıyor <span class="ticker-sep">✦</span></span>
+  </div>
+</div>
+
+
+<section class="veri-bulgular" id="bulgular">
+  <div class="veri-bulgular-inner">
+    <div class="sec-label">00 — Anket Bulguları</div>
+    <div class="veri-header">
+      <div>
+        <h2 class="veri-h2">DO-YA-MI-<span>YO-RUZ</span></h2>
+      </div>
+      <div>
+        <p class="veri-lead">
+          Galatasaray Üniversitesinde gerçekleştirilen araştırma, İstanbul'da öğrenciler için gıdaya erişimin artan bir sorun olduğunu ve giderek büyüyen bir gizli açlık sorununun oluştuğunu gösteriyor.
+          <strong>Öğün sayısı düşüyor, fiyat temel ölçüt haline geliyor, sağlıklı beslenme erteleniyor, sosyalleşme zorlaşıyor.</strong>
+        </p>
+        <p class="veri-method">
+          İstanbul alt örneklemi: <strong>n=286</strong>. Oranlar, aksi belirtilmedikçe “sık sık / her zaman” yanıtlarının toplamıdır.
+        </p>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num">%69,6</div>
+        <div class="stat-title">Günde iki öğün veya daha az yiyor</div>
+        <p class="stat-text">Bu, yalnızca öğün tercihi değil; öğrencilik hayatında beslenme düzeninin daralması.</p>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">%66,7</div>
+        <div class="stat-title">Gıdada önce fiyatı düşünüyor</div>
+        <p class="stat-text">Besleyicilikten önce “ne kadar tutar?” sorusu geliyor.</p>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-num">%57,3</div>
+        <div class="stat-title">Ekonomik nedenle sağlıklı beslenemiyor</div>
+        <p class="stat-text">Sağlıklı beslenme bir hak olmaktan çıkıp maliyet hesabına dönüşüyor.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">%80,8</div>
+        <div class="stat-title">Hiçbir gıda desteği almıyor</div>
+        <p class="stat-text">Öğrenciler çoğu zaman bu krizi tek başına yönetmeye bırakılıyor.</p>
+      </div>
+    </div>
+
+    <div class="veri-panel">
+      <div class="veri-box">
+        <h3 class="veri-box-title">Kriz gündelik ve bireysel stratejilerle aşılmaya çalışılıyor</h3>
+        <p class="veri-box-body">
+          Öğrenciler açlığı açıkça söylemek yerine öğünü küçültüyor, ay sonuna doğru alışverişi kısıyor,
+          ucuz ve doyurucu gıdalara yöneliyor. Bunlar bireysel “idare etme” pratikleri gibi görünse de,
+          aynı anda çok sayıda öğrencinin hayatında tekrarlandığında politik bir meseleye dönüşüyor.
+        </p>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Ucuz/indirimli gıda tercih etme</div>
+            <div class="veri-bar-track"><span style="width:67.1%"></span></div>
+            <div class="veri-bar-val">%67,1</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Fiyat odaklı düşünme</div>
+            <div class="veri-bar-track"><span style="width:66.7%"></span></div>
+            <div class="veri-bar-val">%66,7</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Ay sonu gıda/öğün azaltma</div>
+            <div class="veri-bar-track"><span style="width:51.8%"></span></div>
+            <div class="veri-bar-val">%51,8</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Öğün atlama</div>
+            <div class="veri-bar-track"><span style="width:43.2%"></span></div>
+            <div class="veri-bar-val">%43,2</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Maddi nedenle yeterli gıdaya ulaşamama</div>
+            <div class="veri-bar-track"><span style="width:30.8%"></span></div>
+            <div class="veri-bar-val">%30,8</div>
+            
+          </div>
+      </div>
+      <div class="veri-box dark">
+        <h3 class="veri-box-title">“Tok tutan” gıdaya sıkışmak</h3>
+        <p class="veri-box-body">
+          Makarna, pilav ve fast-food bu araştırmada yalnızca gıda türü değil; öğrencilerin bütçeyle
+          baş ederken yöneldiği ucuz doyuruculuk hattı olarak okunmalı.
+        </p>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Haftada 3+ gün makarna</div>
+            <div class="veri-bar-track"><span style="width:54.5%"></span></div>
+            <div class="veri-bar-val">%54,5</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Haftada 3+ gün pilav</div>
+            <div class="veri-bar-track"><span style="width:33.9%"></span></div>
+            <div class="veri-bar-val">%33,9</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Haftada 3+ gün fast-food</div>
+            <div class="veri-bar-track"><span style="width:30.4%"></span></div>
+            <div class="veri-bar-val">%30,4</div>
+            
+          </div>
+        
+          <div class="veri-bar-row ">
+            <div class="veri-bar-label">Kampüste sağlıklı/ucuz yemek bulamama</div>
+            <div class="veri-bar-track"><span style="width:57.3%"></span></div>
+            <div class="veri-bar-val">%57,3</div>
+            
+          </div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card wide">
+        <div class="compare-kicker">En güçlü kırılma</div>
+        <h3>Aile evinden çıkmak, gıda sorumluluğunun bireyselleşmesi demek.</h3>
+        <p>
+          Aile dışında yaşayan öğrencilerde gıda stresi belirgin biçimde yükseliyor. Barınma krizi ile gıda krizi
+          birbirinden ayrı değil: kira, yurt, ulaşım ve mutfak sorumluluğu aynı bütçeye yükleniyor.
+        </p>
+        
+        <div class="compare-row">
+          <div class="compare-title">Günde iki öğün veya daha az</div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-meta"><span>Aile yanı (n=119)</span><strong>%52,9</strong></div>
+              <div class="mini-track"><span style="width:52.9%"></span></div>
+            </div>
+            <div>
+              <div class="compare-meta"><span>Aile dışı (n=143)</span><strong>%82,5</strong></div>
+              <div class="mini-track accent"><span style="width:82.5%"></span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="compare-row">
+          <div class="compare-title">Öğün atlama</div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-meta"><span>Aile yanı</span><strong>%24,6</strong></div>
+              <div class="mini-track"><span style="width:24.6%"></span></div>
+            </div>
+            <div>
+              <div class="compare-meta"><span>Aile dışı</span><strong>%58,0</strong></div>
+              <div class="mini-track accent"><span style="width:58.0%"></span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="compare-row">
+          <div class="compare-title">Ekonomik nedenle sağlıklı beslenememe</div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-meta"><span>Aile yanı</span><strong>%37,0</strong></div>
+              <div class="mini-track"><span style="width:37.0%"></span></div>
+            </div>
+            <div>
+              <div class="compare-meta"><span>Aile dışı</span><strong>%76,2</strong></div>
+              <div class="mini-track accent"><span style="width:76.2%"></span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="compare-row">
+          <div class="compare-title">Maddi nedenle yeterli gıdaya ulaşamama</div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-meta"><span>Aile yanı</span><strong>%15,1</strong></div>
+              <div class="mini-track"><span style="width:15.1%"></span></div>
+            </div>
+            <div>
+              <div class="compare-meta"><span>Aile dışı</span><strong>%47,6</strong></div>
+              <div class="mini-track accent"><span style="width:47.6%"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-kicker">Devlet / Vakıf</div>
+        <h3>Basit bir “devlet-vakıf” ayrımı yetmiyor.</h3>
+        <p>
+          Genel gıda stresi iki grupta benzer. Ama kampüs altyapısı, sosyal yaşam maliyeti ve yeterli gıdaya ulaşma
+          göstergelerinde farklı sorun alanları ortaya çıkıyor.
+        </p>
+        
+        <div class="compare-row">
+          <div class="compare-title">Yeterli gıdaya ulaşamama</div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-meta"><span>Devlet (n=127)</span><strong>%26,0</strong></div>
+              <div class="mini-track"><span style="width:26.0%"></span></div>
+            </div>
+            <div>
+              <div class="compare-meta"><span>Vakıf (n=136)</span><strong>%39,7</strong></div>
+              <div class="mini-track accent"><span style="width:39.7%"></span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="compare-row">
+          <div class="compare-title">Maliyet nedeniyle sosyalleşmeme</div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-meta"><span>Devlet</span><strong>%31,5</strong></div>
+              <div class="mini-track"><span style="width:31.5%"></span></div>
+            </div>
+            <div>
+              <div class="compare-meta"><span>Vakıf</span><strong>%45,6</strong></div>
+              <div class="mini-track accent"><span style="width:45.6%"></span></div>
+            </div>
+          </div>
+        </div>
+      <div class="compare-card">
+        <div class="compare-kicker">Destek açığı</div>
+        <h3>Öğrenciler krizi çoğunlukla yalnız yönetiyor.</h3>
+        <p>
+          Gıda desteği, yemek bursu veya dayanışma mekanizmaları çoğu öğrencinin hayatına ulaşmıyor.
+          Bu boşluk, kolektif örgütlenme ve kamusal talep için açık bir alan.
+        </p>
+        <div class="callout-strip">
+          <strong>%80,8</strong>
+          <p>Herhangi bir gıda desteğinden yararlanmadığını söylüyor. Bu oran, “destek var mı?” sorusundan çok
+          “destek kime, nasıl, hangi görünürlükle ulaşıyor?” sorusunu açıyor.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<section class="duygular" id="duygular">
+  <div class="duygular-left">
+    <div class="sec-label">01 — Nereden Geliyoruz</div>
+    <h2 class="duygular-h2">İlk toplantıda<br><em>ne hissettik?</em></h2>
+    <p class="duygular-body">
+      Gündelik hayatın içinde o sessiz hesap: dışarıda yemek yiyebilecek 
+      olsak bile "zaten tokum" demek. Bunu toplantıda ilk dile getirdiğimizde, 
+      odadaki herkesin tanıdık geldiğini gördük.
+    </p>
+    <div class="pull-quote">
+      <p>Tek başına sesimizi çıkartmaya çekindiğimiz ihtiyaçlarımızı, kolektif 
+      dayanışma içinde en güçlü halimizle dile getirebiliriz.</p>
+    </div>
+    <p class="duygular-body">
+      Utanç, öfke ve mizah — gıda güvencesizliğiyle başa çıkmanın üç farklı 
+      kanalı. Hepsini masaya yatırdık. Komedi hem ortaklaştırıyor hem de 
+      söylenmesi güç olanı söylemeyi kolaylaştırıyor.
+    </p>
+  </div>
+  <div class="duygular-right">
+    <div class="feeling-card" data-num="1">
+      <div class="feeling-title">Utanç Mekanizması</div>
+      <p class="feeling-text">En temel ihtiyacımız olan yemek yemeyi bireysel olarak dile getirmek ne kadar zor. "Tokum" derken aslında hesap yapıyoruz. Kendi kendimizi sustururken sistemi koruyoruz.</p>
+      <span class="feeling-tag red">Kişisel Düzlem</span>
+    </div>
+    <div class="feeling-card" data-num="2">
+      <div class="feeling-title">Öfke — Meşru ve Gerekli</div>
+      <p class="feeling-text">Yemekhaneler kısa süreli tokluk yaratıyor, fiyatlar öğrenci dostu değil, bazı vakıf üniversitelerinde yemekhane bile yok. İçimizde büyüyen öfkenin adını koyduk: bu öfke haklı.</p>
+      <span class="feeling-tag rust">Kurumsal Düzlem</span>
+    </div>
+    <div class="feeling-card" data-num="3">
+      <div class="feeling-title">Mizah — Araç Olarak Komedi</div>
+      <p class="feeling-text">İçinde bulunduğumuz durumu güldürüye getirmek hem bir başa çıkma mekanizması hem de ortaklaştırmanın en hızlı yolu. Ama bu sefer güldürünün arkasını da konuşuyoruz.</p>
+      <span class="feeling-tag green">Kolektif Düzlem</span>
+    </div>
+  </div>
+</section>
+
+<section class="sorunlar" id="sorunlar">
+  <div class="sorunlar-inner">
+    <div class="sec-label">02 — Neyle Karşı Karşıyayız</div>
+    <h2 class="sorunlar-h2">KAMPÜSTE<span>GIDA</span>SİSTEMİ</h2>
+    <div class="sorunlar-grid">
+      <div class="sorun-item">
+        <span class="sorun-glyph">🍽️</span>
+        <h3 class="sorun-title">Yemekhane Erişim Sorunu</h3>
+        <p class="sorun-body">Ucuz opsiyona yetiştirmek için derslere geç girmek ya da girmemek. Kısa zaman aralıkları, kötü kalite, kısa süreli tokluk. Erişim kısıtlı, fiyat yüksek.</p>
+      </div>
+      <div class="sorun-item">
+        <span class="sorun-glyph">🏢</span>
+        <h3 class="sorun-title">Vakıf Üniversitesi Eşitsizliği</h3>
+        <p class="sorun-body">Bazılarında yemekhane yok, olanların fiyatları öğrenci dostu değil. Devlet-vakıf üniversitesi arasındaki gıda adaletsizliği görünmez ama son derece gerçek.</p>
+      </div>
+      <div class="sorun-item">
+        <span class="sorun-glyph">🏠</span>
+        <h3 class="sorun-title">KYK: Kolektif Mutfak Yokluğu</h3>
+        <p class="sorun-body">KYK yemekhanelerinin kötü durumu, yurtlarda kolektif mutfak olmayışı, kettle ve kahve makinelerine yapılan baskınlar, sürekli denetim altında hissetmek.</p>
+      </div>
+      <div class="sorun-item">
+        <span class="sorun-glyph">💸</span>
+        <h3 class="sorun-title">Ekonomik Baskı</h3>
+        <p class="sorun-body">Enflasyon ve kira artışları önce yemek bütçesine vuruyor. Sağlıklı beslenme lüks haline geliyor; "ucuz, tok tutan" tercihler zorunluluk olarak yerleşiyor.</p>
+      </div>
+      <div class="sorun-item">
+        <span class="sorun-glyph">🗺️</span>
+        <h3 class="sorun-title">Kampüs Dışı Görünmezlik</h3>
+        <p class="sorun-body">"Kampüs" kavramı yalnızca merkez bina değil. Çevredeki yerleşkeler, KYK'lar, öğrenci evleri de bu tanımın içine girmeli. Sorun her yerde.</p>
+      </div>
+      <div class="sorun-item">
+        <span class="sorun-glyph">🤐</span>
+        <h3 class="sorun-title">Sessizleştirme Kültürü</h3>
+        <p class="sorun-body">Sosyalleşirken tok olmak zorundaymışız gibi davranmak, yardım istemekten kaçınmak, ihtiyacı görmezden gelmek — bunlar sistemin sürdürülmesine hizmet ediyor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="kyk-strip">
+  <div class="kyk-text">
+    <p class="kyk-eyebrow">Öne Çıkan Mesele</p>
+    <h2 class="kyk-h2">KYK'larda Yurt İçi Pazar Ekonomisi</h2>
+    <p class="kyk-body">Denetimler, el koymalar, gizlice çözümler geliştirmek. Yurt içinde bir dayanışma ağı kendiliğinden oluşuyor; kettle paylaşımından yemek artanı paylaşmaya. Bu yaratıcı çözümlerin belgelenmesi ve görünür kılınması gerekiyor.</p>
+    <a href="#katilim" class="btn-paper">Deneyimini Paylaş</a>
+  </div>
+  <div class="kyk-visual">
+    <div class="kyk-stat-row">
+      <span class="kyk-big">?</span>
+      <span class="kyk-small">Kaç yurtta kolektif mutfak var</span>
+    </div>
+    <div style="width:60%;height:1px;background:rgba(214,203,181,.15);position:relative;z-index:2;"></div>
+    <div class="kyk-stat-row">
+      <span class="kyk-big">0</span>
+      <span class="kyk-small">Sorunun kabul edildiği resmi toplantı</span>
+    </div>
+  </div>
+</div>
+
+<section class="fikirler" id="fikirler">
+  <div class="sec-label">03 — Ne Yapabiliriz</div>
+  <h2 class="fikirler-h2">Toplantıdan çıkan<br><em>somut fikirler</em></h2>
+  <div class="fikir-list">
+    <div class="fikir-card">
+      <div class="fikir-num">01</div>
+      <div>
+        <div class="fikir-title">Dayanışma Pikniği</div>
+        <p class="fikir-text">Herkesin elinden geldiğince bir şey getirdiği, kolektifin ilk büyük buluşması. Katılımı artırmak ve birbirimizi tanımak için en doğal zemin. Hafta sonu düzenleniyor.</p>
+        <span class="fikir-badge">Yakında</span>
+      </div>
+    </div>
+    <div class="fikir-card">
+      <div class="fikir-num">02</div>
+      <div>
+        <div class="fikir-title">Kolektif İsim Oylama Süreci</div>
+        <p class="fikir-text">İsmimize hep beraber karar veriyoruz. Ardından sosyal medya hesapları açılacak, aktif paylaşımlar başlayacak. Görünürlük örgütlenmenin ayrılmaz parçası.</p>
+        <span class="fikir-badge">Aktif</span>
+      </div>
+    </div>
+    <div class="fikir-card">
+      <div class="fikir-num">03</div>
+      <div>
+        <div class="fikir-title">Restoran & Kafe Haritası Uygulaması</div>
+        <p class="fikir-text">Öğrenci dostu fiyat-performans değerlendirmeleri, queer-friendly ve vegan katmanları da olan interaktif bir harita. Hangi kapıya girebileceğimizi birlikte biliyoruz.</p>
+        <span class="fikir-badge">Geliştirme Aşamasında</span>
+      </div>
+    </div>
+    <div class="fikir-card">
+      <div class="fikir-num">04</div>
+      <div>
+        <div class="fikir-title">Organik Genişleme Ağı</div>
+        <p class="fikir-text">Öğrenci meclisleri, dayanışma ağları, vegan ve feminist dernekler aracılığıyla sesimizi duyurmak. Kanallara yayılmak, ağları büyütmek.</p>
+        <span class="fikir-badge">Planlanıyor</span>
+      </div>
+    </div>
+    <div class="fikir-card">
+      <div class="fikir-num">05</div>
+      <div>
+        <div class="fikir-title">KYK Kolektif Mutfak Talebi</div>
+        <p class="fikir-text">KYK yurtlarında kolektif mutfak hakkı için savunuculuk. Kettle baskınlarına son, birlikte pişirme alanları, denetimden özgür bir yaşam alanı.</p>
+        <span class="fikir-badge">Araştırma Aşamasında</span>
+      </div>
+    </div>
+    <div class="fikir-card">
+      <div class="fikir-num">06</div>
+      <div>
+        <div class="fikir-title">Duygu Ölçüm Metodolojisi</div>
+        <p class="fikir-text">Gıda güvencesizliğinin duygusal boyutunu ölçmek için araştırma yöntemleri geliştirmek. Utanç, öfke ve mizahı akademik söylemle buluşturmak.</p>
+        <span class="fikir-badge">Tartışılıyor</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="katilim" id="katilim">
+  <div class="katilim-inner">
+    <div class="katilim-kicker">İlk adım seninle</div>
+    <h2 class="katilim-h2">DAYANIŞMA<span>BÜYÜYOR.</span></h2>
+    <p class="katilim-desc">Toplantılardan haberdar olmak, fikirlere katkı koymak ya da sadece ne olduğumuzu takip etmek için e-postanı bırak. Kimse sormaz, kimse yargılamaz.</p>
+    <div class="katilim-form">
+      <input type="email" class="katilim-input" placeholder="e-posta adresin">
+      <button class="katilim-btn">Katıl →</button>
+    </div>
+    <p class="katilim-hint">Spam yok · İstediğin an ayrılabilirsin</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">GIDA ADALETİ <span>KOLEKTİFİ</span></div>
+      <p class="footer-tagline">Kampüsten başlayan, sokaklara taşan. Hiyerarşisiz, kâr gütmeyen, tamamen gönüllü emeğiyle var olan bir kolektif.</p>
+    </div>
+    <div>
+      <div class="footer-col-head">Kolektif</div>
+      <ul class="footer-links">
+        <li><a href="#">İlk Toplantı Notları</a></li>
+        <li><a href="#">Kimiz</a></li>
+        <li><a href="#">Değerlerimiz</a></li>
+        <li><a href="#">Gönüllü Ol</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-head">Projeler</div>
+      <ul class="footer-links">
+        <li><a href="#">Restoran Haritası</a></li>
+        <li><a href="#">KYK Araştırması</a></li>
+        <li><a href="#">Piknik 2025</a></li>
+        <li><a href="#">Duygu Araştırması</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-head">İletişim</div>
+      <ul class="footer-links">
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">E-posta Gönder</a></li>
+        <li><a href="#">Toplantı Takvimi</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 Gıda Adaleti Kolektifi — Tüm haklar kolektife aittir.</span>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">Twitter/X</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
