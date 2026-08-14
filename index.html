@@ -582,6 +582,43 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   letter-spacing:0;
 }
 .harita-filter-group { display:flex; flex-direction:column; gap:.6rem; }
+
+/* MEKAN ARAMA */
+.harita-search-group {
+  display:flex; flex-direction:column; gap:.5rem;
+  padding-bottom:1.2rem; border-bottom:1px solid var(--mist);
+}
+.harita-search-row { display:flex; gap:.4rem; position:relative; }
+.harita-search-input {
+  flex:1; border:2px solid var(--ink); background:white;
+  font-family:'Courier Prime',monospace; font-size:.8rem;
+  padding:.55rem .7rem; color:var(--ink); outline:none; transition:border-color .15s;
+}
+.harita-search-input:focus { border-color:var(--red); }
+.harita-search-input::placeholder { color:var(--mist); }
+.harita-search-btn {
+  border:2px solid var(--ink); background:var(--ink); color:var(--paper);
+  font-size:.85rem; padding:0 .8rem; cursor:pointer; flex-shrink:0; transition:all .15s;
+}
+.harita-search-btn:hover { background:var(--red); border-color:var(--red); }
+.harita-search-btn:disabled { opacity:.5; cursor:not-allowed; }
+.harita-search-results {
+  display:flex; flex-direction:column; gap:.3rem;
+  max-height:220px; overflow-y:auto;
+}
+.harita-search-result {
+  text-align:left; background:white; border:1px solid var(--mist);
+  padding:.5rem .65rem; cursor:pointer; font-size:.7rem; line-height:1.4;
+  color:#3A2A14; transition:all .12s;
+}
+.harita-search-result:hover { border-color:var(--red); background:rgba(193,59,42,.05); }
+.harita-search-result-name { font-weight:700; display:block; margin-bottom:.1rem; }
+.harita-search-result-addr { color:var(--rust); font-size:.64rem; }
+.harita-search-status {
+  font-size:.66rem; color:var(--rust); padding:.3rem 0;
+}
+.harita-search-status.error { color:var(--red); }
+
 .harita-filter-label {
   font-size:.68rem; letter-spacing:.08em; color:#3A2A14; font-weight:700;
   text-transform:uppercase; margin-bottom:.15rem;
@@ -1073,6 +1110,15 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 
     <div class="harita-layout">
       <div class="harita-panel">
+        <div class="harita-search-group">
+          <div class="harita-filter-label">Mekan / Adres Ara</div>
+          <div class="harita-search-row">
+            <input type="text" id="harita-search-input" class="harita-search-input" placeholder="örn. Migros Kadıköy, Bahariye Cd." autocomplete="off">
+            <button type="button" id="harita-search-btn" class="harita-search-btn" aria-label="Ara">🔍</button>
+          </div>
+          <div id="harita-search-results" class="harita-search-results"></div>
+        </div>
+
         <div>
           <div class="harita-panel-title">Filtrele <span class="harita-count" id="harita-sonuc-sayisi">—</span></div>
         </div>
@@ -1766,6 +1812,107 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       .finally(function () {
         mevcutDeneyimBtn.disabled = false;
       });
+  });
+
+  /* ===== MEKAN / ADRES ARAMA (Nominatim) ===== */
+  var searchInput = document.getElementById("harita-search-input");
+  var searchBtn = document.getElementById("harita-search-btn");
+  var searchResultsEl = document.getElementById("harita-search-results");
+  var searchMarker = null;
+  var searchDebounceTimer = null;
+
+  function clearSearchResults() {
+    searchResultsEl.innerHTML = "";
+  }
+
+  function showSearchStatus(text, isError) {
+    searchResultsEl.innerHTML = '<div class="harita-search-status' + (isError ? " error" : "") + '">' + escapeHTML(text) + '</div>';
+  }
+
+  function runSearch(query) {
+    query = query.trim();
+    if (!query) { clearSearchResults(); return; }
+
+    searchBtn.disabled = true;
+    showSearchStatus("Aranıyor…", false);
+
+    // İstanbul çevresine öncelik ver (viewbox), ama sonuçları buna kısıtlama (bounded=0)
+    var url = "https://nominatim.openstreetmap.org/search?format=json&limit=6&addressdetails=1" +
+      "&viewbox=28.5,41.35,29.6,40.75&bounded=0&q=" + encodeURIComponent(query);
+
+    fetch(url, { headers: { "Accept-Language": "tr" } })
+      .then(function (res) {
+        if (!res.ok) throw new Error("Arama servisine ulaşılamadı.");
+        return res.json();
+      })
+      .then(function (results) {
+        if (!results.length) {
+          showSearchStatus("Sonuç bulunamadı. Farklı bir isimle dene.", false);
+          return;
+        }
+        searchResultsEl.innerHTML = "";
+        results.forEach(function (r) {
+          var item = document.createElement("button");
+          item.type = "button";
+          item.className = "harita-search-result";
+          var name = r.display_name.split(",")[0];
+          var rest = r.display_name.split(",").slice(1, 3).join(",").trim();
+          item.innerHTML =
+            '<span class="harita-search-result-name">' + escapeHTML(name) + '</span>' +
+            '<span class="harita-search-result-addr">' + escapeHTML(rest) + '</span>';
+          item.addEventListener("click", function () {
+            goToSearchResult(r);
+          });
+          searchResultsEl.appendChild(item);
+        });
+      })
+      .catch(function (err) {
+        showSearchStatus("Arama yapılamadı: " + err.message, true);
+      })
+      .finally(function () {
+        searchBtn.disabled = false;
+      });
+  }
+
+  function goToSearchResult(r) {
+    var lat = parseFloat(r.lat);
+    var lng = parseFloat(r.lon);
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    if (searchMarker) map.removeLayer(searchMarker);
+    var icon = L.divIcon({
+      html: '<svg width="26" height="34" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg"><path d="M13 0C5.8 0 0 5.8 0 13c0 9.5 13 21 13 21s13-11.5 13-21C26 5.8 20.2 0 13 0z" fill="#C13B2A" stroke="#1C1208" stroke-width="2"/><circle cx="13" cy="13" r="5" fill="#F2EBD9"/></svg>',
+      className: "harita-search-marker-icon",
+      iconSize: [26, 34],
+      iconAnchor: [13, 34]
+    });
+    searchMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
+    searchMarker.bindPopup(
+      '<div class="mekan-popup-title">' + escapeHTML(r.display_name.split(",")[0]) + '</div>' +
+      '<div class="mekan-popup-addr">' + escapeHTML(r.display_name) + '</div>'
+    ).openPopup();
+
+    map.setView([lat, lng], 17);
+    clearSearchResults();
+    searchInput.blur();
+  }
+
+  searchBtn.addEventListener("click", function () {
+    runSearch(searchInput.value);
+  });
+  searchInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      runSearch(searchInput.value);
+    }
+  });
+  // Yazarken de (kısa bir gecikmeyle) otomatik ara, Nominatim'in kullanım
+  // politikasına uymak için en fazla ~1 istek/saniye olacak şekilde debounce.
+  searchInput.addEventListener("input", function () {
+    clearTimeout(searchDebounceTimer);
+    var val = searchInput.value;
+    if (val.trim().length < 3) { clearSearchResults(); return; }
+    searchDebounceTimer = setTimeout(function () { runSearch(val); }, 700);
   });
 
   document.addEventListener("DOMContentLoaded", function () {
