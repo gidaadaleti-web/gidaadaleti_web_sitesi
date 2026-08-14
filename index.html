@@ -751,6 +751,10 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   background: var(--mist);
   overflow:hidden;
   box-shadow: 6px 6px 0 rgba(28,18,8,.1);
+  z-index:1; /* Leaflet'in iç katmanlarının (tile/control/popup) sticky nav'ın
+                üzerine çıkmasını engellemek için haritayı kendi düşük
+                stacking context'ine sabitliyoruz. */
+  isolation:isolate;
 }
 #harita-map { width:100%; height:100%; min-height:560px; background:var(--mist); }
 .harita-status {
@@ -785,6 +789,14 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 .mekan-popup-tag.pet      { background:var(--yellow); }
 .mekan-popup-tag.porsiyon { background:transparent; }
 .mekan-popup-desc { font-size:.75rem; line-height:1.6; color:#3A2A14; margin-top:.4rem; }
+.mekan-popup-suggest-btn {
+  display:block; width:100%; margin-top:.6rem;
+  background:var(--red); color:var(--paper); border:2px solid var(--red);
+  font-family:'Courier Prime',monospace; font-size:.66rem; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; padding:.5rem .6rem;
+  cursor:pointer; transition:all .15s;
+}
+.mekan-popup-suggest-btn:hover { background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
 
 .harita-footnote {
   margin-top:1.6rem; font-size:.68rem; line-height:1.7; color:#6D5943;
@@ -1492,6 +1504,18 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
     }).addTo(map);
     markersLayer = L.layerGroup().addTo(map);
     map.on("click", handleMapClick);
+
+    // Mouse tekerleğiyle zoom, yalnızca imleç haritanın üzerindeyken aktif
+    // olsun. Böylece hem "fare ile yakınlaştırma çalışmıyor" sorunu çözülür,
+    // hem de sayfa kaydırılırken imleç haritadan geçtiğinde scroll'un
+    // "yutulması" engellenmiş olur.
+    var mapContainer = map.getContainer();
+    mapContainer.addEventListener("mouseenter", function () {
+      map.scrollWheelZoom.enable();
+    });
+    mapContainer.addEventListener("mouseleave", function () {
+      map.scrollWheelZoom.disable();
+    });
   }
 
   function wireControls() {
@@ -1664,7 +1688,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   wireStars(document.getElementById("yeni-stars"));
   wireStars(document.getElementById("mevcut-stars"));
 
-  function openMekanModal(nearbyMekan, lat, lng) {
+  function openMekanModal(nearbyMekan, lat, lng, suggestedName) {
     var coordsText = lat.toFixed(6) + ", " + lng.toFixed(6);
     if (nearbyMekan) {
       modalNew.style.display = "none";
@@ -1684,7 +1708,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       modalExisting.style.display = "none";
       modalNew.style.display = "block";
       document.getElementById("yeni-coords").textContent = "Seçilen konum: " + coordsText;
-      document.getElementById("yeni-isim").value = "";
+      document.getElementById("yeni-isim").value = suggestedName || "";
       document.getElementById("yeni-adres").value = "";
       document.getElementById("yeni-fiyat").value = "3";
       document.getElementById("yeni-porsiyon").value = "3";
@@ -1695,6 +1719,14 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       document.getElementById("yeni-pet").checked = false;
       document.getElementById("yeni-yorum").value = "";
       document.getElementById("yeni-email").value = "";
+      if (suggestedName) {
+        // İsim önceden dolu geldiğinde kullanıcının doğrudan değerlendirme
+        // alanına geçmesi daha doğal olur.
+        setTimeout(function () {
+          var yorumEl = document.getElementById("yeni-yorum");
+          if (yorumEl) yorumEl.focus();
+        }, 50);
+      }
     }
     modalOverlay.classList.add("open");
   }
@@ -1887,14 +1919,38 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       iconAnchor: [13, 34]
     });
     searchMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
+
+    var searchResultName = r.display_name.split(",")[0];
+    var popupId = "search-suggest-btn-" + Date.now();
     searchMarker.bindPopup(
-      '<div class="mekan-popup-title">' + escapeHTML(r.display_name.split(",")[0]) + '</div>' +
-      '<div class="mekan-popup-addr">' + escapeHTML(r.display_name) + '</div>'
-    ).openPopup();
+      '<div class="mekan-popup-title">' + escapeHTML(searchResultName) + '</div>' +
+      '<div class="mekan-popup-addr">' + escapeHTML(r.display_name) + '</div>' +
+      '<button type="button" class="mekan-popup-suggest-btn" id="' + popupId + '">+ Bu mekanı öner</button>'
+    );
+
+    // Listener'ı popup açılmadan ÖNCE bağlamalıyız, yoksa ilk açılışta
+    // "popupopen" event'i kaçırılır ve buton hiç çalışmaz.
+    searchMarker.on("popupopen", function () {
+      var btn = document.getElementById(popupId);
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        searchMarker.closePopup();
+        pendingCoords = { lat: lat, lng: lng };
+        var nearby = findNearbyMekan(lat, lng);
+        if (!togglePickingModeIsOn()) togglePickingMode(true);
+        openMekanModal(nearby, lat, lng, searchResultName);
+      });
+    });
+
+    searchMarker.openPopup();
 
     map.setView([lat, lng], 17);
     clearSearchResults();
     searchInput.blur();
+  }
+
+  function togglePickingModeIsOn() {
+    return addBtn.classList.contains("active");
   }
 
   searchBtn.addEventListener("click", function () {
@@ -1926,7 +1982,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 <section class="duygular" id="duygular">
   <div class="duygular-left">
     <div class="sec-label">02 — Nereden Geliyoruz</div>
-    <h2 class="duygular-h2">Hergün<br><em>neler hissediyoruz?</em></h2>
+    <h2 class="duygular-h2">İlk toplantıda<br><em>ne hissettik?</em></h2>
     <p class="duygular-body">
       Gündelik hayatın içinde o sessiz hesap: dışarıda yemek yiyebilecek 
       olsak bile "zaten tokum" demek. Bunu toplantıda ilk dile getirdiğimizde, 
