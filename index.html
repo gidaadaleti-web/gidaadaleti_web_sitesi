@@ -587,13 +587,16 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   width:15px; height:15px; accent-color:var(--red); cursor:pointer; flex-shrink:0;
 }
 .harita-chip.active { background:rgba(193,59,42,.08); border-color:var(--red); }
-.harita-price-row { display:flex; gap:.5rem; }
+.harita-price-row { display:flex; gap:.3rem; }
 .harita-price-btn {
   flex:1; border:2px solid var(--ink); background:transparent;
-  font-family:'Courier Prime',monospace; font-weight:700; font-size:.85rem;
-  padding:.5rem 0; cursor:pointer; color:var(--ink); transition: all .15s;
+  font-family:'Courier Prime',monospace; font-weight:700; font-size:.8rem;
+  padding:.45rem 0; cursor:pointer; color:var(--ink); transition: all .15s;
 }
 .harita-price-btn.active { background:var(--red); color:var(--paper); border-color:var(--red); }
+.harita-price-hint {
+  font-size:.62rem; letter-spacing:.05em; color:var(--rust); margin-top:.35rem;
+}
 .harita-reset {
   font-size:.62rem; letter-spacing:.12em; text-transform:uppercase;
   color:var(--rust); background:none; border:none; cursor:pointer;
@@ -724,6 +727,9 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 .mekan-popup-tag.price { background:var(--yellow); }
 .mekan-popup-tag.vegan { background:var(--green2); color:var(--paper); border-color:var(--green2); }
 .mekan-popup-tag.queer { background:var(--red); color:var(--paper); border-color:var(--red); }
+.mekan-popup-tag.gluten   { background:var(--rust);   color:var(--paper); border-color:var(--rust); }
+.mekan-popup-tag.pet      { background:var(--yellow); }
+.mekan-popup-tag.porsiyon { background:transparent; }
 .mekan-popup-desc { font-size:.75rem; line-height:1.6; color:#3A2A14; margin-top:.4rem; }
 
 .harita-footnote {
@@ -779,7 +785,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   </div>
   <div class="hero-bar">
     <span class="hero-bar-text">Öğrenci · Kolektif · Hiyerarşisiz · Kâr Amacı Gütmez</span>
-    <span class="hero-bar-issue">Sayı 001: Ağustos 2026</span>
+    <span class="hero-bar-issue">Sayı 001 — Nisan 2025</span>
   </div>
 </section>
 
@@ -1057,20 +1063,22 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
         <div class="harita-filter-group">
           <div class="harita-filter-label">Fiyat Seviyesi</div>
           <div class="harita-price-row">
-            <button class="harita-price-btn" data-price="₺">₺</button>
-            <button class="harita-price-btn" data-price="₺₺">₺₺</button>
-            <button class="harita-price-btn" data-price="₺₺₺">₺₺₺</button>
+            <button class="harita-price-btn" data-price="1">₺</button>
+            <button class="harita-price-btn" data-price="2">₺₺</button>
+            <button class="harita-price-btn" data-price="3">₺₺₺</button>
+            <button class="harita-price-btn" data-price="4">₺₺₺₺</button>
+            <button class="harita-price-btn" data-price="5">₺₺₺₺₺</button>
           </div>
+          <p class="harita-price-hint" id="harita-price-hint">Hepsi</p>
         </div>
 
         <div class="harita-filter-group">
           <div class="harita-filter-label">Etiketler</div>
-          <label class="harita-chip">
-            <input type="checkbox" id="filter-vegan"> Vegan seçenek var
-          </label>
-          <label class="harita-chip">
-            <input type="checkbox" id="filter-queer"> Queer-friendly
-          </label>
+          <label class="harita-chip"><input type="checkbox" id="filter-vegan"> Vegan seçenek var</label>
+          <label class="harita-chip"><input type="checkbox" id="filter-gluten"> Glutensiz seçenek var</label>
+          <label class="harita-chip"><input type="checkbox" id="filter-queer"> Queer-friendly</label>
+          <label class="harita-chip"><input type="checkbox" id="filter-pet"> Hayvan dostu</label>
+          <label class="harita-chip"><input type="checkbox" id="filter-porsiyon"> Doyurucu porsiyon (4+)</label>
         </div>
 
         <button class="harita-reset" id="harita-reset">Filtreleri Temizle</button>
@@ -1121,9 +1129,21 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
             <div class="mekan-modal-field">
               <label class="mekan-modal-label">Fiyat seviyesi</label>
               <select id="yeni-fiyat" class="mekan-modal-select">
-                <option value="₺">₺ — uygun</option>
-                <option value="₺₺" selected>₺₺ — orta</option>
-                <option value="₺₺₺">₺₺₺ — yüksek</option>
+                <option value="1">₺ — çok uygun</option>
+                <option value="2">₺₺ — uygun</option>
+                <option value="3" selected>₺₺₺ — orta</option>
+                <option value="4">₺₺₺₺ — pahalı</option>
+                <option value="5">₺₺₺₺₺ — çok pahalı</option>
+              </select>
+            </div>
+            <div class="mekan-modal-field">
+              <label class="mekan-modal-label">Porsiyon</label>
+              <select id="yeni-porsiyon" class="mekan-modal-select">
+                <option value="1">1 — çok az</option>
+                <option value="2">2 — az</option>
+                <option value="3" selected>3 — normal</option>
+                <option value="4">4 — doyurucu</option>
+                <option value="5">5 — çok doyurucu</option>
               </select>
             </div>
             <div class="mekan-modal-field">
@@ -1138,8 +1158,10 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
             </div>
           </div>
           <div class="mekan-modal-checks">
-            <label class="mekan-modal-check"><input type="checkbox" id="yeni-vegan"> Vegan seçenek var</label>
+            <label class="mekan-modal-check"><input type="checkbox" id="yeni-vegan"> Vegan seçenek</label>
+            <label class="mekan-modal-check"><input type="checkbox" id="yeni-gluten"> Glutensiz seçenek</label>
             <label class="mekan-modal-check"><input type="checkbox" id="yeni-queer"> Queer-friendly</label>
+            <label class="mekan-modal-check"><input type="checkbox" id="yeni-pet"> Hayvan dostu</label>
           </div>
           <div class="mekan-modal-field">
             <label class="mekan-modal-label">Kısa değerlendirmen</label>
@@ -1171,9 +1193,22 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
               <button type="button" class="mekan-star" data-star="5">★</button>
             </div>
           </div>
+          <div class="mekan-modal-field">
+            <label class="mekan-modal-label">Porsiyon (senin deneyimine göre)</label>
+            <select id="mevcut-porsiyon" class="mekan-modal-select">
+              <option value="">— fikrim yok —</option>
+              <option value="1">1 — çok az</option>
+              <option value="2">2 — az</option>
+              <option value="3">3 — normal</option>
+              <option value="4">4 — doyurucu</option>
+              <option value="5">5 — çok doyurucu</option>
+            </select>
+          </div>
           <div class="mekan-modal-checks">
-            <label class="mekan-modal-check"><input type="checkbox" id="mevcut-vegan"> Vegan seçenek var</label>
+            <label class="mekan-modal-check"><input type="checkbox" id="mevcut-vegan"> Vegan seçenek</label>
+            <label class="mekan-modal-check"><input type="checkbox" id="mevcut-gluten"> Glutensiz seçenek</label>
             <label class="mekan-modal-check"><input type="checkbox" id="mevcut-queer"> Queer-friendly</label>
+            <label class="mekan-modal-check"><input type="checkbox" id="mevcut-pet"> Hayvan dostu</label>
           </div>
           <div class="mekan-modal-field">
             <label class="mekan-modal-label">Deneyimin</label>
@@ -1185,6 +1220,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
           </div>
           <input type="hidden" id="mevcut-mekan-isim-hidden">
           <button type="submit" class="mekan-modal-submit">Deneyimi Gönder →</button>
+
           <p class="mekan-modal-note">Gönder'e bastığında kendi e-posta uygulaman açılır, mesaj hazır gelir. Kolektif onayladıktan sonra mekan bilgisi güncellenir.</p>
         </form>
       </div>
@@ -1201,7 +1237,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 
   var map, markersLayer;
   var allMekanlar = [];
-  var activeFilters = { price: null, vegan: false, queer: false };
+  var activeFilters = { maxPrice: null, vegan: false, queer: false, gluten: false, pet: false, porsiyon: false };
   var pickingMode = false;
   var pendingCoords = null;
 
@@ -1245,6 +1281,33 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
     return s === "evet" || s === "yes" || s === "true" || s === "1" || s === "x";
   }
 
+  function parseFiyat(v) {
+    if (v === undefined || v === null) return null;
+    var s = v.toString().trim();
+    if (!s) return null;
+    var lira = (s.match(/₺/g) || []).length;      // eski "₺₺" formatı
+    if (lira) return Math.min(lira, 5);
+    var n = parseFloat(s.replace(",", "."));
+    if (isNaN(n)) return null;
+    return Math.max(1, Math.min(5, Math.round(n)));
+  }
+
+  function parsePorsiyon(v) {
+    if (v === undefined || v === null) return null;
+    var s = v.toString().trim().toLowerCase();
+    if (!s) return null;
+    if (s.indexOf("küçük") === 0 || s.indexOf("kucuk") === 0) return 2;
+    if (s.indexOf("orta") === 0) return 3;
+    if (s.indexOf("büyük") === 0 || s.indexOf("buyuk") === 0) return 5;
+    var n = parseFloat(s.replace(",", "."));
+    if (isNaN(n)) return null;
+    return Math.max(1, Math.min(5, Math.round(n)));
+  }
+
+  function liraStr(n) {
+    var s = ""; for (var i = 0; i < n; i++) s += "₺"; return s;
+  }
+
   function rowsToMekanlar(rows) {
     if (!rows.length) return [];
     var headers = rows[0].map(function (h) { return h.trim().toLowerCase(); });
@@ -1270,9 +1333,12 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
         adres: (idx["adres"] !== undefined ? row[idx["adres"]] : "") || "",
         lat: lat,
         lng: lng,
-        fiyat: (idx["fiyat"] !== undefined ? row[idx["fiyat"]] : "") || "",
+        fiyat: parseFiyat(idx["fiyat"] !== undefined ? row[idx["fiyat"]] : ""),
+        porsiyon: parsePorsiyon(idx["porsiyon"] !== undefined ? row[idx["porsiyon"]] : ""),
         vegan: isEvet(idx["vegan"] !== undefined ? row[idx["vegan"]] : ""),
+        gluten: isEvet(idx["glutensiz"] !== undefined ? row[idx["glutensiz"]] : ""),
         queer: isEvet(idx["queer_friendly"] !== undefined ? row[idx["queer_friendly"]] : ""),
+        pet: isEvet(idx["hayvan_dostu"] !== undefined ? row[idx["hayvan_dostu"]] : ""),
         aciklama: (idx["aciklama"] !== undefined ? row[idx["aciklama"]] : "") || ""
       });
     }
@@ -1300,9 +1366,12 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 
   function popupHTML(m) {
     var tags = "";
-    if (m.fiyat) tags += '<span class="mekan-popup-tag price">' + escapeHTML(m.fiyat) + '</span>';
-    if (m.vegan) tags += '<span class="mekan-popup-tag vegan">Vegan</span>';
-    if (m.queer) tags += '<span class="mekan-popup-tag queer">Queer-friendly</span>';
+    if (m.fiyat) tags += '<span class="mekan-popup-tag price">' + liraStr(m.fiyat) + ' ' + m.fiyat + '/5</span>';
+    if (m.porsiyon) tags += '<span class="mekan-popup-tag porsiyon">Porsiyon ' + m.porsiyon + '/5</span>';
+    if (m.vegan)  tags += '<span class="mekan-popup-tag vegan">Vegan</span>';
+    if (m.gluten) tags += '<span class="mekan-popup-tag gluten">Glutensiz</span>';
+    if (m.queer)  tags += '<span class="mekan-popup-tag queer">Queer-friendly</span>';
+    if (m.pet)    tags += '<span class="mekan-popup-tag pet">Hayvan dostu</span>';
     return '<div class="mekan-popup-title">' + escapeHTML(m.isim) + '</div>' +
       (m.adres ? '<div class="mekan-popup-addr">' + escapeHTML(m.adres) + '</div>' : '') +
       (tags ? '<div class="mekan-popup-tags">' + tags + '</div>' : '') +
@@ -1310,9 +1379,12 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   }
 
   function passesFilters(m) {
-    if (activeFilters.price && m.fiyat !== activeFilters.price) return false;
-    if (activeFilters.vegan && !m.vegan) return false;
-    if (activeFilters.queer && !m.queer) return false;
+    if (activeFilters.maxPrice !== null && (!m.fiyat || m.fiyat > activeFilters.maxPrice)) return false;
+    if (activeFilters.porsiyon && (!m.porsiyon || m.porsiyon < 4)) return false;
+    if (activeFilters.vegan  && !m.vegan)  return false;
+    if (activeFilters.gluten && !m.gluten) return false;
+    if (activeFilters.queer  && !m.queer)  return false;
+    if (activeFilters.pet    && !m.pet)    return false;
     return true;
   }
 
@@ -1359,41 +1431,54 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   }
 
   function wireControls() {
-    document.querySelectorAll(".harita-price-btn").forEach(function (btn) {
+    var priceBtns = document.querySelectorAll(".harita-price-btn");
+    var priceHint = document.getElementById("harita-price-hint");
+
+    function paintPrice() {
+      priceBtns.forEach(function (b) {
+        var v = parseInt(b.getAttribute("data-price"), 10);
+        b.classList.toggle("active", activeFilters.maxPrice !== null && v <= activeFilters.maxPrice);
+      });
+      priceHint.textContent = activeFilters.maxPrice
+        ? liraStr(activeFilters.maxPrice) + " ve altı"
+        : "Hepsi";
+    }
+
+    priceBtns.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var p = btn.getAttribute("data-price");
-        if (activeFilters.price === p) {
-          activeFilters.price = null;
-          btn.classList.remove("active");
-        } else {
-          document.querySelectorAll(".harita-price-btn").forEach(function (b) { b.classList.remove("active"); });
-          activeFilters.price = p;
-          btn.classList.add("active");
-        }
+        var v = parseInt(btn.getAttribute("data-price"), 10);
+        activeFilters.maxPrice = (activeFilters.maxPrice === v) ? null : v;
+        paintPrice();
         render();
       });
     });
 
-    var veganBox = document.getElementById("filter-vegan");
-    var queerBox = document.getElementById("filter-queer");
-    veganBox.addEventListener("change", function () {
-      activeFilters.vegan = veganBox.checked;
-      veganBox.closest(".harita-chip").classList.toggle("active", veganBox.checked);
-      render();
-    });
-    queerBox.addEventListener("change", function () {
-      activeFilters.queer = queerBox.checked;
-      queerBox.closest(".harita-chip").classList.toggle("active", queerBox.checked);
-      render();
+    var checkMap = {
+      "filter-vegan": "vegan",
+      "filter-gluten": "gluten",
+      "filter-queer": "queer",
+      "filter-pet": "pet",
+      "filter-porsiyon": "porsiyon"
+    };
+    var boxes = [];
+    Object.keys(checkMap).forEach(function (id) {
+      var box = document.getElementById(id);
+      if (!box) return;
+      boxes.push(box);
+      box.addEventListener("change", function () {
+        activeFilters[checkMap[id]] = box.checked;
+        box.closest(".harita-chip").classList.toggle("active", box.checked);
+        render();
+      });
     });
 
     document.getElementById("harita-reset").addEventListener("click", function () {
-      activeFilters = { price: null, vegan: false, queer: false };
-      veganBox.checked = false;
-      queerBox.checked = false;
-      veganBox.closest(".harita-chip").classList.remove("active");
-      queerBox.closest(".harita-chip").classList.remove("active");
-      document.querySelectorAll(".harita-price-btn").forEach(function (b) { b.classList.remove("active"); });
+      activeFilters = { maxPrice: null, vegan: false, queer: false, gluten: false, pet: false, porsiyon: false };
+      boxes.forEach(function (b) {
+        b.checked = false;
+        b.closest(".harita-chip").classList.remove("active");
+      });
+      paintPrice();
       render();
     });
   }
@@ -1525,7 +1610,10 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       document.getElementById("mevcut-mekan-isim-hidden").value = nearbyMekan.isim;
       resetStars(document.getElementById("mevcut-stars"));
       document.getElementById("mevcut-vegan").checked = false;
+      document.getElementById("mevcut-gluten").checked = false;
       document.getElementById("mevcut-queer").checked = false;
+      document.getElementById("mevcut-pet").checked = false;
+      document.getElementById("mevcut-porsiyon").value = "";
       document.getElementById("mevcut-yorum").value = "";
       document.getElementById("mevcut-email").value = "";
     } else {
@@ -1534,10 +1622,13 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       document.getElementById("yeni-coords").textContent = "Seçilen konum: " + coordsText;
       document.getElementById("yeni-isim").value = "";
       document.getElementById("yeni-adres").value = "";
-      document.getElementById("yeni-fiyat").value = "₺₺";
+      document.getElementById("yeni-fiyat").value = "3";
+      document.getElementById("yeni-porsiyon").value = "3";
       resetStars(document.getElementById("yeni-stars"));
       document.getElementById("yeni-vegan").checked = false;
+      document.getElementById("yeni-gluten").checked = false;
       document.getElementById("yeni-queer").checked = false;
+      document.getElementById("yeni-pet").checked = false;
       document.getElementById("yeni-yorum").value = "";
       document.getElementById("yeni-email").value = "";
     }
@@ -1564,9 +1655,12 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
     var isim = document.getElementById("yeni-isim").value.trim();
     var adres = document.getElementById("yeni-adres").value.trim();
     var fiyat = document.getElementById("yeni-fiyat").value;
+    var porsiyon = document.getElementById("yeni-porsiyon").value;
     var puan = document.getElementById("yeni-stars").getAttribute("data-value");
-    var vegan = document.getElementById("yeni-vegan").checked ? "Evet" : "Hayır";
-    var queer = document.getElementById("yeni-queer").checked ? "Evet" : "Hayır";
+    var vegan  = document.getElementById("yeni-vegan").checked ? "Evet" : "Hayır";
+    var gluten = document.getElementById("yeni-gluten").checked ? "Evet" : "Hayır";
+    var queer  = document.getElementById("yeni-queer").checked ? "Evet" : "Hayır";
+    var pet    = document.getElementById("yeni-pet").checked ? "Evet" : "Hayır";
     var yorum = document.getElementById("yeni-yorum").value.trim();
     var email = document.getElementById("yeni-email").value.trim();
 
@@ -1577,10 +1671,13 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       "Mekan adı: " + isim + "\n" +
       "Adres: " + (adres || "(belirtilmedi)") + "\n" +
       "Koordinatlar: " + pendingCoords.lat.toFixed(6) + ", " + pendingCoords.lng.toFixed(6) + "\n" +
-      "Fiyat seviyesi: " + fiyat + "\n" +
+      "Fiyat seviyesi (1-5): " + fiyat + "\n" +
+      "Porsiyon (1-5): " + porsiyon + "\n" +
       "Puan: " + puan + "/5\n" +
       "Vegan seçenek: " + vegan + "\n" +
-      "Queer-friendly: " + queer + "\n\n" +
+      "Glutensiz seçenek: " + gluten + "\n" +
+      "Queer-friendly: " + queer + "\n" +
+      "Hayvan dostu: " + pet + "\n\n" +
       "Değerlendirme:\n" + yorum + "\n\n" +
       "Öneren kişinin e-postası: " + (email || "(belirtilmedi)") + "\n\n" +
       "---\n" +
@@ -1596,8 +1693,11 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
     e.preventDefault();
     var mekanIsim = document.getElementById("mevcut-mekan-isim-hidden").value;
     var puan = document.getElementById("mevcut-stars").getAttribute("data-value");
-    var vegan = document.getElementById("mevcut-vegan").checked ? "Evet" : "Hayır";
-    var queer = document.getElementById("mevcut-queer").checked ? "Evet" : "Hayır";
+    var porsiyon = document.getElementById("mevcut-porsiyon").value;
+    var vegan  = document.getElementById("mevcut-vegan").checked ? "Evet" : "Hayır";
+    var gluten = document.getElementById("mevcut-gluten").checked ? "Evet" : "Hayır";
+    var queer  = document.getElementById("mevcut-queer").checked ? "Evet" : "Hayır";
+    var pet    = document.getElementById("mevcut-pet").checked ? "Evet" : "Hayır";
     var yorum = document.getElementById("mevcut-yorum").value.trim();
     var email = document.getElementById("mevcut-email").value.trim();
 
@@ -1607,8 +1707,11 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       "============================\n\n" +
       "Mekan adı: " + mekanIsim + "\n" +
       "Puan: " + puan + "/5\n" +
+      "Porsiyon (bu kişinin deneyimine göre, 1-5): " + (porsiyon || "(belirtilmedi)") + "\n" +
       "Vegan seçenek (bu kişinin deneyimine göre): " + vegan + "\n" +
-      "Queer-friendly (bu kişinin deneyimine göre): " + queer + "\n\n" +
+      "Glutensiz seçenek (bu kişinin deneyimine göre): " + gluten + "\n" +
+      "Queer-friendly (bu kişinin deneyimine göre): " + queer + "\n" +
+      "Hayvan dostu (bu kişinin deneyimine göre): " + pet + "\n\n" +
       "Deneyim:\n" + yorum + "\n\n" +
       "Gönderen kişinin e-postası: " + (email || "(belirtilmedi)") + "\n\n" +
       "---\n" +
@@ -1630,7 +1733,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 <section class="duygular" id="duygular">
   <div class="duygular-left">
     <div class="sec-label">02 — Nereden Geliyoruz</div>
-    <h2 class="duygular-h2">Neler<br><em>konuşuyoruz</em></h2>
+    <h2 class="duygular-h2">Beraber<br><em>neler hissediyoruz</em></h2>
     <p class="duygular-body">
       Gündelik hayatın içinde o sessiz hesap: dışarıda yemek yiyebilecek 
       olsak bile "zaten tokum" demek. Bunu toplantıda ilk dile getirdiğimizde, 
@@ -1658,7 +1761,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
       <span class="feeling-tag rust">Kurumsal Düzlem</span>
     </div>
     <div class="feeling-card" data-num="3">
-      <div class="feeling-title">Mizah - Araç Olarak Komedi</div>
+      <div class="feeling-title">Mizah — Araç Olarak Komedi</div>
       <p class="feeling-text">İçinde bulunduğumuz durumu güldürüye getirmek hem bir başa çıkma mekanizması hem de ortaklaştırmanın en hızlı yolu. Ama bu sefer güldürünün arkasını da konuşuyoruz.</p>
       <span class="feeling-tag green">Kolektif Düzlem</span>
     </div>
