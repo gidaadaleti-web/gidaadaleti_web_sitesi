@@ -334,6 +334,15 @@ nav {
 }
 .mailform-submit:hover { background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
 .mailform-note { font-size:.62rem; line-height:1.7; color:rgba(242,235,217,.4); text-align:left; margin-top:-.2rem; }
+.mailform-status {
+  font-size:.72rem; font-weight:700; text-align:left; margin:0; min-height:0;
+  transition: all .15s;
+}
+.mailform-status:empty { display:none; }
+.mailform-status.sending { color:var(--yellow); }
+.mailform-status.success { color:var(--green2); }
+.mailform-status.error { color:var(--red); }
+.mailform-submit:disabled { opacity:.6; cursor:not-allowed; }
 .mailform-direct {
   display:flex; align-items:center; justify-content:center; gap:.6rem;
   margin-top:1.6rem; font-size:.72rem; color:var(--mist);
@@ -690,6 +699,14 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 .mekan-modal-note {
   font-size:.62rem; line-height:1.7; color:#6D5943; margin-top:.2rem;
 }
+.mekan-modal-status {
+  font-size:.72rem; font-weight:700; text-align:left; margin:0;
+}
+.mekan-modal-status:empty { display:none; }
+.mekan-modal-status.sending { color:var(--rust); }
+.mekan-modal-status.success { color:var(--green2); }
+.mekan-modal-status.error { color:var(--red); }
+.mekan-modal-submit:disabled { opacity:.6; cursor:not-allowed; }
 .mekan-pick-marker-icon { pointer-events:none; }
 
 .harita-map-wrap {
@@ -1173,7 +1190,8 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
           </div>
           <div class="mekan-modal-coords" id="yeni-coords"></div>
           <button type="submit" class="mekan-modal-submit">Öneriyi Gönder →</button>
-          <p class="mekan-modal-note">Gönder'e bastığında kendi e-posta uygulaman açılır, mesaj hazır gelir. Kolektif onayladıktan sonra mekan haritada görünür.</p>
+          <p class="mekan-modal-status" id="yeni-mekan-status" aria-live="polite"></p>
+          <p class="mekan-modal-note">Gönder'e bastığında öneri doğrudan kolektife iletilir. Onaylanınca mekan haritada görünür.</p>
         </form>
       </div>
 
@@ -1220,8 +1238,8 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
           </div>
           <input type="hidden" id="mevcut-mekan-isim-hidden">
           <button type="submit" class="mekan-modal-submit">Deneyimi Gönder →</button>
-
-          <p class="mekan-modal-note">Gönder'e bastığında kendi e-posta uygulaman açılır, mesaj hazır gelir. Kolektif onayladıktan sonra mekan bilgisi güncellenir.</p>
+          <p class="mekan-modal-status" id="mevcut-deneyim-status" aria-live="polite"></p>
+          <p class="mekan-modal-note">Gönder'e bastığında deneyimin doğrudan kolektife iletilir. Onaylanınca mekan bilgisi güncellenir.</p>
         </form>
       </div>
     </div>
@@ -1508,7 +1526,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
   }
 
   /* ===== MEKAN ÖNER / DENEYİM EKLE ===== */
-  var COLLECTIVE_EMAIL = "gidaadaletikolektifi@gmail.com";
+  var BACKEND_URL = "https://gidaadaleti-web-sitesi-backend.onrender.com";
   var NEARBY_THRESHOLD_METERS = 120;
   var pickMarker = null;
 
@@ -1643,83 +1661,111 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
     if (e.target === modalOverlay) closeMekanModal();
   });
 
-  function openMailto(subject, body) {
-    var url = "mailto:" + COLLECTIVE_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-    window.location.href = url;
+  function postJSON(path, data) {
+    return fetch(BACKEND_URL + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      return res.json().then(function (json) {
+        if (!res.ok || !json.ok) {
+          throw new Error((json && json.error) || "Bilinmeyen bir hata oluştu.");
+        }
+        return json;
+      });
+    });
+  }
+
+  function setMekanStatus(el, kind, text) {
+    el.className = "mekan-modal-status" + (kind ? " " + kind : "");
+    el.textContent = text || "";
   }
 
   // Yeni mekan formu gönderimi
-  document.getElementById("form-mekan-yeni").addEventListener("submit", function (e) {
+  var formMekanYeni = document.getElementById("form-mekan-yeni");
+  var yeniMekanStatus = document.getElementById("yeni-mekan-status");
+  var yeniMekanBtn = formMekanYeni.querySelector(".mekan-modal-submit");
+  formMekanYeni.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!pendingCoords) return;
     var isim = document.getElementById("yeni-isim").value.trim();
     var adres = document.getElementById("yeni-adres").value.trim();
     var fiyat = document.getElementById("yeni-fiyat").value;
     var porsiyon = document.getElementById("yeni-porsiyon").value;
-    var puan = document.getElementById("yeni-stars").getAttribute("data-value");
-    var vegan  = document.getElementById("yeni-vegan").checked ? "Evet" : "Hayır";
-    var gluten = document.getElementById("yeni-gluten").checked ? "Evet" : "Hayır";
-    var queer  = document.getElementById("yeni-queer").checked ? "Evet" : "Hayır";
-    var pet    = document.getElementById("yeni-pet").checked ? "Evet" : "Hayır";
+    var puan = parseInt(document.getElementById("yeni-stars").getAttribute("data-value"), 10) || 0;
+    var vegan  = document.getElementById("yeni-vegan").checked;
+    var gluten = document.getElementById("yeni-gluten").checked;
+    var queer  = document.getElementById("yeni-queer").checked;
+    var pet    = document.getElementById("yeni-pet").checked;
     var yorum = document.getElementById("yeni-yorum").value.trim();
     var email = document.getElementById("yeni-email").value.trim();
 
-    var subject = "[Harita] Yeni Mekan Önerisi: " + isim;
-    var body =
-      "YENİ MEKAN ÖNERİSİ\n" +
-      "====================\n\n" +
-      "Mekan adı: " + isim + "\n" +
-      "Adres: " + (adres || "(belirtilmedi)") + "\n" +
-      "Koordinatlar: " + pendingCoords.lat.toFixed(6) + ", " + pendingCoords.lng.toFixed(6) + "\n" +
-      "Fiyat seviyesi (1-5): " + fiyat + "\n" +
-      "Porsiyon (1-5): " + porsiyon + "\n" +
-      "Puan: " + puan + "/5\n" +
-      "Vegan seçenek: " + vegan + "\n" +
-      "Glutensiz seçenek: " + gluten + "\n" +
-      "Queer-friendly: " + queer + "\n" +
-      "Hayvan dostu: " + pet + "\n\n" +
-      "Değerlendirme:\n" + yorum + "\n\n" +
-      "Öneren kişinin e-postası: " + (email || "(belirtilmedi)") + "\n\n" +
-      "---\n" +
-      "Bu öneri site üzerinden gönderildi. Onaylanırsa Google Sheets'e eklenmesi gerekiyor.";
+    yeniMekanBtn.disabled = true;
+    setMekanStatus(yeniMekanStatus, "sending", "Gönderiliyor…");
 
-    openMailto(subject, body);
-    closeMekanModal();
-    togglePickingMode(false);
+    postJSON("/api/harita/yeni-mekan", {
+      isim: isim, adres: adres,
+      lat: pendingCoords.lat, lng: pendingCoords.lng,
+      fiyat: fiyat, porsiyon: porsiyon, puan: puan,
+      vegan: vegan, gluten: gluten, queer: queer, pet: pet,
+      yorum: yorum, email: email
+    })
+      .then(function () {
+        setMekanStatus(yeniMekanStatus, "success", "Teşekkürler! Önerin kolektife iletildi.");
+        setTimeout(function () {
+          closeMekanModal();
+          togglePickingMode(false);
+          formMekanYeni.reset();
+          setMekanStatus(yeniMekanStatus, "", "");
+        }, 1400);
+      })
+      .catch(function (err) {
+        setMekanStatus(yeniMekanStatus, "error", "Gönderilemedi: " + err.message);
+      })
+      .finally(function () {
+        yeniMekanBtn.disabled = false;
+      });
   });
 
   // Mevcut mekana deneyim ekleme formu gönderimi
-  document.getElementById("form-mekan-mevcut").addEventListener("submit", function (e) {
+  var formMekanMevcut = document.getElementById("form-mekan-mevcut");
+  var mevcutDeneyimStatus = document.getElementById("mevcut-deneyim-status");
+  var mevcutDeneyimBtn = formMekanMevcut.querySelector(".mekan-modal-submit");
+  formMekanMevcut.addEventListener("submit", function (e) {
     e.preventDefault();
     var mekanIsim = document.getElementById("mevcut-mekan-isim-hidden").value;
-    var puan = document.getElementById("mevcut-stars").getAttribute("data-value");
+    var puan = parseInt(document.getElementById("mevcut-stars").getAttribute("data-value"), 10) || 0;
     var porsiyon = document.getElementById("mevcut-porsiyon").value;
-    var vegan  = document.getElementById("mevcut-vegan").checked ? "Evet" : "Hayır";
-    var gluten = document.getElementById("mevcut-gluten").checked ? "Evet" : "Hayır";
-    var queer  = document.getElementById("mevcut-queer").checked ? "Evet" : "Hayır";
-    var pet    = document.getElementById("mevcut-pet").checked ? "Evet" : "Hayır";
+    var vegan  = document.getElementById("mevcut-vegan").checked;
+    var gluten = document.getElementById("mevcut-gluten").checked;
+    var queer  = document.getElementById("mevcut-queer").checked;
+    var pet    = document.getElementById("mevcut-pet").checked;
     var yorum = document.getElementById("mevcut-yorum").value.trim();
     var email = document.getElementById("mevcut-email").value.trim();
 
-    var subject = "[Harita] Yeni Deneyim: " + mekanIsim;
-    var body =
-      "MEVCUT MEKANA YENİ DENEYİM\n" +
-      "============================\n\n" +
-      "Mekan adı: " + mekanIsim + "\n" +
-      "Puan: " + puan + "/5\n" +
-      "Porsiyon (bu kişinin deneyimine göre, 1-5): " + (porsiyon || "(belirtilmedi)") + "\n" +
-      "Vegan seçenek (bu kişinin deneyimine göre): " + vegan + "\n" +
-      "Glutensiz seçenek (bu kişinin deneyimine göre): " + gluten + "\n" +
-      "Queer-friendly (bu kişinin deneyimine göre): " + queer + "\n" +
-      "Hayvan dostu (bu kişinin deneyimine göre): " + pet + "\n\n" +
-      "Deneyim:\n" + yorum + "\n\n" +
-      "Gönderen kişinin e-postası: " + (email || "(belirtilmedi)") + "\n\n" +
-      "---\n" +
-      "Bu deneyim site üzerinden gönderildi. Onaylanırsa Google Sheets'teki ilgili satıra işlenmesi gerekiyor.";
+    mevcutDeneyimBtn.disabled = true;
+    setMekanStatus(mevcutDeneyimStatus, "sending", "Gönderiliyor…");
 
-    openMailto(subject, body);
-    closeMekanModal();
-    togglePickingMode(false);
+    postJSON("/api/harita/deneyim-ekle", {
+      mekanIsim: mekanIsim, porsiyon: porsiyon, puan: puan,
+      vegan: vegan, gluten: gluten, queer: queer, pet: pet,
+      yorum: yorum, email: email
+    })
+      .then(function () {
+        setMekanStatus(mevcutDeneyimStatus, "success", "Teşekkürler! Deneyimin kolektife iletildi.");
+        setTimeout(function () {
+          closeMekanModal();
+          togglePickingMode(false);
+          formMekanMevcut.reset();
+          setMekanStatus(mevcutDeneyimStatus, "", "");
+        }, 1400);
+      })
+      .catch(function (err) {
+        setMekanStatus(mevcutDeneyimStatus, "error", "Gönderilemedi: " + err.message);
+      })
+      .finally(function () {
+        mevcutDeneyimBtn.disabled = false;
+      });
   });
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -1733,7 +1779,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 <section class="duygular" id="duygular">
   <div class="duygular-left">
     <div class="sec-label">02 — Nereden Geliyoruz</div>
-    <h2 class="duygular-h2">Beraber<br><em>neler hissediyoruz</em></h2>
+    <h2 class="duygular-h2">Hergün<br><em>neler hissediyoruz?</em></h2>
     <p class="duygular-body">
       Gündelik hayatın içinde o sessiz hesap: dışarıda yemek yiyebilecek 
       olsak bile "zaten tokum" demek. Bunu toplantıda ilk dile getirdiğimizde, 
@@ -1849,7 +1895,8 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
           <input type="email" id="katil-email" class="mailform-input" placeholder="sana geri dönebilelim" required>
         </div>
         <button type="submit" class="mailform-submit">Katıl →</button>
-        <p class="mailform-note">Gönder'e bastığında kendi e-posta uygulaman (Gmail, Outlook vb.) hazır bir mesajla açılır — göndermek için son adımı sen tamamlarsın. Spam yok, istediğin an ayrılabilirsin.</p>
+        <p class="mailform-status" id="katil-status" aria-live="polite"></p>
+        <p class="mailform-note">Gönder'e bastığında bilgilerin doğrudan kolektife iletilir. Spam yok, istediğin an ayrılabilirsin.</p>
       </form>
     </div>
 
@@ -1880,8 +1927,9 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
           <label class="mailform-label" for="yaz-mesaj">Mesajın</label>
           <textarea id="yaz-mesaj" class="mailform-textarea" placeholder="Bize ne anlatmak istersin?" required></textarea>
         </div>
-        <button type="submit" class="mailform-submit">Mesajı Hazırla →</button>
-        <p class="mailform-note">Gönder'e bastığında kendi e-posta uygulaman, bu bilgilerle doldurulmuş halde açılır. Göndermeden önce dilediğin gibi düzenleyebilirsin.</p>
+        <button type="submit" class="mailform-submit">Gönder →</button>
+        <p class="mailform-status" id="yaz-status" aria-live="polite"></p>
+        <p class="mailform-note">Gönder'e bastığında mesajın doğrudan kolektife iletilir.</p>
       </form>
     </div>
 
@@ -1891,7 +1939,7 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
 
 <script>
 (function () {
-  var COLLECTIVE_EMAIL = "gidaadaletikolektifi@gmail.com";
+  var BACKEND_URL = "https://gidaadaleti-web-sitesi-backend.onrender.com";
 
   // Sekme geçişleri
   var tabs = document.querySelectorAll(".katilim-tab");
@@ -1904,38 +1952,76 @@ footer { background: var(--paper); border-top: 4px solid var(--ink); padding: 3.
     });
   });
 
-  function openMailto(subject, body) {
-    var url = "mailto:" + COLLECTIVE_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-    window.location.href = url;
+  function setStatus(el, kind, text) {
+    el.className = "mailform-status" + (kind ? " " + kind : "");
+    el.textContent = text || "";
+  }
+
+  function postJSON(path, data) {
+    return fetch(BACKEND_URL + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      return res.json().then(function (json) {
+        if (!res.ok || !json.ok) {
+          throw new Error((json && json.error) || "Bilinmeyen bir hata oluştu.");
+        }
+        return json;
+      });
+    });
   }
 
   // Bültene katıl formu
   var formKatil = document.getElementById("form-katil");
+  var katilStatus = document.getElementById("katil-status");
+  var katilBtn = formKatil.querySelector(".mailform-submit");
   formKatil.addEventListener("submit", function (e) {
     e.preventDefault();
     var isim = document.getElementById("katil-isim").value.trim();
     var email = document.getElementById("katil-email").value.trim();
-    var subject = "Bültene Katılmak İstiyorum";
-    var body = (isim ? "Merhaba, ben " + isim + ".\n\n" : "Merhaba,\n\n") +
-      "Gıda Adaleti Kolektifi bültenine ve toplantı duyurularına katılmak istiyorum.\n\n" +
-      "E-posta adresim: " + email + "\n";
-    openMailto(subject, body);
+
+    katilBtn.disabled = true;
+    setStatus(katilStatus, "sending", "Gönderiliyor…");
+
+    postJSON("/api/bultene-katil", { isim: isim, email: email })
+      .then(function () {
+        setStatus(katilStatus, "success", "Teşekkürler! Bültene eklendin.");
+        formKatil.reset();
+      })
+      .catch(function (err) {
+        setStatus(katilStatus, "error", "Gönderilemedi: " + err.message + " Doğrudan gidaadaletikolektifi@gmail.com adresine de yazabilirsin.");
+      })
+      .finally(function () {
+        katilBtn.disabled = false;
+      });
   });
 
   // Bize yaz formu
   var formYaz = document.getElementById("form-yaz");
+  var yazStatus = document.getElementById("yaz-status");
+  var yazBtn = formYaz.querySelector(".mailform-submit");
   formYaz.addEventListener("submit", function (e) {
     e.preventDefault();
     var isim = document.getElementById("yaz-isim").value.trim();
     var email = document.getElementById("yaz-email").value.trim();
     var konu = document.getElementById("yaz-konu").value;
     var mesaj = document.getElementById("yaz-mesaj").value.trim();
-    var subject = "[Site] " + konu + " — " + isim;
-    var body = "Ad: " + isim + "\n" +
-      "E-posta: " + email + "\n" +
-      "Konu: " + konu + "\n\n" +
-      "Mesaj:\n" + mesaj + "\n";
-    openMailto(subject, body);
+
+    yazBtn.disabled = true;
+    setStatus(yazStatus, "sending", "Gönderiliyor…");
+
+    postJSON("/api/bize-yaz", { isim: isim, email: email, konu: konu, mesaj: mesaj })
+      .then(function () {
+        setStatus(yazStatus, "success", "Teşekkürler! Mesajın iletildi.");
+        formYaz.reset();
+      })
+      .catch(function (err) {
+        setStatus(yazStatus, "error", "Gönderilemedi: " + err.message + " Doğrudan gidaadaletikolektifi@gmail.com adresine de yazabilirsin.");
+      })
+      .finally(function () {
+        yazBtn.disabled = false;
+      });
   });
 })();
 </script>
